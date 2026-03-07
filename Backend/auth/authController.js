@@ -1,21 +1,21 @@
 const { findUserByEmail, CreateUser } = require('../services/authServices');
-const { generateToken } = require('../configs/JWT')
+const { generateToken } = require('../config/JWT')
 const bcrypt = require('bcrypt')
 
-exports.signup = async (req, res) =>{
-    try{
-        const {name, email, password} = req.body;
+exports.signup = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
 
-        if(!name || !email || !password){
+        if (!name || !email || !password) {
             return res.status(400).json({
-                message:"All fields are required"
+                message: "All fields are required"
             })
         }
 
         const existingUser = await findUserByEmail(email);
-        if(existingUser){
+        if (existingUser) {
             res.status(401).json({
-                messager:"User already exist"
+                messager: "User already exist"
             });
         }
 
@@ -24,8 +24,8 @@ exports.signup = async (req, res) =>{
         const user = CreateUser(name, email, hashedPassword)
 
         const token = generateToken({
-            id:user.id,
-            email:user.email
+            id: user.id,
+            email: user.email
         });
 
         res.status(201).json({
@@ -33,26 +33,26 @@ exports.signup = async (req, res) =>{
             token
         })
     }
-   catch (error) {
+    catch (error) {
 
-    res.status(500).json({
-      message: error.message
-    });
+        res.status(500).json({
+            message: error.message
+        });
 
-  }
+    }
 
 }
 
-exports.login = async(req,res) =>{
-    try{
+exports.login = async (req, res) => {
+    try {
 
-        const {email, password} = req.body;
+        const { email, password } = req.body;
 
         const user = await findUserByEmail(email);
 
-        if(!user){
+        if (!user) {
             return res.status(401).json({
-                message:"Invalid email or password"
+                message: "Invalid email or password"
             });
         }
 
@@ -60,31 +60,31 @@ exports.login = async(req,res) =>{
             password,
             user.password_hash
         )
-        if(!validPassword){
+        if (!validPassword) {
             return res.status(401).json({
-                message:"incorrect password"
+                message: "incorrect password"
             })
         }
 
         const token = generateToken({
-             id: user.id,
+            id: user.id,
             email: user.email
         });
 
         res.json({
             token,
-            user:{
-                id:user.id,
-                name:user.name,
-                email:user.email
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email
             }
         })
 
-    }catch (error) {
+    } catch (error) {
 
-    res.status(500).json({
-      message: error.message
-    });
+        res.status(500).json({
+            message: error.message
+        });
 
-  }
+    }
 }
